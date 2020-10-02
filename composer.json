@@ -1,7 +1,10 @@
 {
     "name": "saulmoralespa/razer-gold-pin-store",
-    "description": "Boilerplate package for creating other packages.",
-    "keywords": ["template", "composer", "package"],
+    "description": "Razer Gold PIN Store API PHP",
+    "keywords": [
+        "razer", "gold", "razer-sdk",
+        "api", "php-razer", "razer-api"
+    ],
     "license": "MIT",
     "authors": [
         {
