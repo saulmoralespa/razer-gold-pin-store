@@ -16,13 +16,11 @@ class Client
     protected static $_sandbox = false;
     private $applicationCode;
     private $secretKey;
-    private $userName;
 
-    public function __construct($applicationCode, $secretKey, $userName)
+    public function __construct($applicationCode, $secretKey)
     {
         $this->applicationCode = $applicationCode;
         $this->secretKey = $secretKey;
-        $this->userName = $userName;
     }
 
     public function client()
@@ -43,7 +41,6 @@ class Client
     {
         self::$_sandbox = $status;
     }
-
 
     public function purchaseInitiation(array $params)
     {
@@ -84,7 +81,28 @@ class Client
             $result = self::responseJson($response);
             self::checkErros($result);
             return $result;
+        }catch(RequestException $exception){
+            throw new \Exception($exception->getMessage());
+        }
+    }
 
+    public function getConfirmation(array $params)
+    {
+        try {
+            $params = array_merge($params, [
+                "applicationCode" => $this->applicationCode,
+                "version" => self::API_VERSION,
+                "signature" => $this->generateSignature($params)
+            ]);
+            $response = $this->client()->post("pinstore/purchaseconfirmation", [
+                "headers" => [
+                    "Content-Type" => "application/x-www-form-urlencoded"
+                ],
+                "form_params" => $params
+            ]);
+            $result = self::responseJson($response);
+            self::checkErros($result);
+            return $result;
         }catch(RequestException $exception){
             throw new \Exception($exception->getMessage());
         }
@@ -103,8 +121,6 @@ class Client
             $signature = $this->applicationCode . $params['productCode'] . $params['quantity'] . $params['referenceId'] . self::API_VERSION . $this->secretKey;
         if (isset($params['validatedToken']))
             $signature = $this->applicationCode . $params['referenceId'] . self::API_VERSION . $params['validatedToken'] . $this->secretKey;
-        if (isset($params['sku']))
-            $signature = $this->applicationCode . $this->userName . $params['sku'] . $params['referenceId'] . self::API_VERSION  . $this->secretKey;
 
         return md5($signature);
     }
@@ -129,5 +145,4 @@ class Client
             '99' => 'Purchase transaction is failed'
         ];
     }
-
 }

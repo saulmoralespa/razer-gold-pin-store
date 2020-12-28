@@ -15,9 +15,8 @@ class RazerGoldPinStoreTest extends TestCase
 
         $applicationCode = $_ENV['APPLICATION_CODE'];
         $secretKey = $_ENV['SECRET_KEY'];
-        $userName = $_ENV['USER_NAME'];
 
-        $this->razer = new Client($applicationCode, $secretKey, $userName);
+        $this->razer = new Client($applicationCode, $secretKey);
         $this->razer->sandboxMode(true);
 
     }
@@ -26,13 +25,12 @@ class RazerGoldPinStoreTest extends TestCase
     {
         $params = [
             "referenceId" => 'inv' . time(),
-            "productCode" => "0217475",
+            "productCode" => "0228542",
             "quantity"  => 1,
             //"merchantProductCode" => "STEAM-MXN100",
-            "consumerCountryCode" => "MX"
+            //"consumerCountryCode" => "MX"
         ];
         $response = $this->razer->purchaseInitiation($params);
-        var_dump($response);
         $this->assertAttributeNotEmpty('validatedToken', $response);
     }
 
@@ -44,5 +42,16 @@ class RazerGoldPinStoreTest extends TestCase
         ];
         $response = $this->razer->purchaseConfirmation($params);
         $this->assertAttributeEquals('00', 'purchaseStatusCode', $response);
+    }
+
+    public function testGetConfirmation()
+    {
+        $params = [
+            "referenceId" => "inv1604943764",
+            "validatedToken" => "8c5c88d078f24910948507c2ec352584"
+        ];
+
+        $response = $this->razer->getConfirmation($params);
+        var_dump($response);
     }
 }
